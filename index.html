@@ -169,6 +169,43 @@
     .bg-treasures { background-color: var(--color-treasures); }
     .bg-ministry { background-color: var(--color-ministry); }
     .bg-living { background-color: var(--color-living); }
+
+    /* --- スマホ表示（縦・横）向けのプレビュー文字サイズ調整 --- */
+    @media (max-width: 896px) {
+      .paper {
+        /* 紙の左右の余白を狭くして、文字を表示できる幅を広げます */
+        padding: 25px 15px; 
+      }
+      .p-congregation { font-size: 0.95rem; }
+      .p-meeting { font-size: 1.15rem; }
+      .p-meta { font-size: 0.85rem; }
+      
+      /* 各行の文字サイズを小さめに調整 */
+      .p-row { font-size: 0.8rem; } 
+      
+      /* 左右の項目幅を少し狭くして、真ん中のタイトル部分のスペースを確保します */
+      .p-time { width: 40px; } 
+      .p-person { min-width: 90px; } 
+      .p-title { padding-right: 5px; } 
+      
+      .p-section-title { 
+        font-size: 0.9rem; 
+        padding: 3px 8px; 
+        margin: 12px 0 8px 0; 
+      }
+    }
+
+    /* --- スマホ縦表示のときだけ、編集画面を広く、プレビューを狭くする --- */
+    @media (max-width: 767px) {
+      .edit-area {
+        flex: 2; /* 編集画面の比率を大きくして広げます（元のコードは 1） */
+      }
+      .preview-area {
+        flex: 1; /* プレビュー画面の比率を小さくします（元のコードは 2） */
+        padding: 15px 10px; /* プレビュー周りの余白を削って、さらに省スペース化します */
+      }
+    }
+
   </style>
 </head>
 <body>
