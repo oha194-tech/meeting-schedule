@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ຊີວິດຄລິດສະຕຽນແລະວຽກຮັບໃຊ້ - ສ້າງຕາຕະລາງ</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    :root {
+      --bg-color: #f3f4f6;
+      --border-color: #d1d5db;
+      --text-color: #1f2937;
+      --primary-color: #4f46e5;
+      --danger-color: #ef4444;
+      --success-color: #10b981;
+      
+      --color-treasures: #5a6b73;
+      --color-ministry: #c18626;
+      --color-living: #96282d;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Noto Sans Lao', 'Helvetica Neue', Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+    @media (min-width: 768px) {
+      .app-container { flex-direction: row; }
+    }
+
+    .action-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .btn-action {
+      flex: 1;
+      min-width: 100px;
+      padding: 12px 10px;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-family: 'Noto Sans Lao', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .btn-action:active { transform: translateY(1px); }
+    
+    .btn-new { background-color: var(--danger-color); }
+    .btn-open { background-color: var(--primary-color); }
+    .btn-save { background-color: var(--success-color); }
+    /* 画像保存ボタン用のスタイルを追加 */
+    .btn-image { background-color: #8b5cf6; } 
+
+    .edit-area {
+      flex: 1;
+      background: #ffffff;
+      padding: 20px;
+      overflow-y: auto;
+      border-bottom: 1px solid var(--border-color);
+      box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+      z-index: 10;
+    }
+    @media (min-width: 768px) {
+      .edit-area {
+        border-bottom: none;
+        border-right: 1px solid var(--border-color);
+        max-width: 450px;
+      }
+    }
+    .edit-area h2 {
+      font-size: 1.2rem;
+      margin-top: 0;
+      padding-bottom: 10px;
+      border-bottom: 2px solid var(--primary-color);
+      color: var(--primary-color);
+    }
+    .form-group {
+      margin-bottom: 15px;
+      background: #f9fafb;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #4b5563;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      font-size: 0.95rem;
+      font-family: 'Noto Sans Lao', sans-serif;
+      box-sizing: border-box;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+    }
+    
+    .item-row { display: flex; gap: 5px; margin-bottom: 8px; align-items: center; }
+    .item-row input.time { width: 65px; }
+    .item-row input.title { flex: 1; }
+    .item-row input.person { width: 100px; }
+    .btn-delete {
+      background: var(--danger-color); color: white; border: none;
+      border-radius: 4px; padding: 8px; cursor: pointer; font-weight: bold;
+    }
+    .btn-add {
+      background: var(--primary-color); color: white; border: none;
+      border-radius: 4px; padding: 8px 12px; cursor: pointer;
+      font-size: 0.85rem; font-family: 'Noto Sans Lao', sans-serif;
+      margin-top: 5px; width: 100%;
+    }
+    .section-title-edit {
+      font-weight: bold; margin: 20px 0 10px 0; color: #374151;
+      border-bottom: 1px solid #d1d5db; font-family: 'Noto Sans Lao', sans-serif;
+    }
+
+    .preview-area {
+      flex: 2; padding: 30px 20px; background: #e5e7eb;
+      overflow-y: auto; display: flex; justify-content: center; align-items: flex-start;
+    }
+    .paper {
+      background: white; width: 100%; max-width: 750px; padding: 50px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      font-family: 'Noto Sans Lao', sans-serif; color: #222; line-height: 1.5;
+    }
+    
+    .p-congregation { font-size: 1.1rem; font-weight: 700; margin-bottom: 5px; color: #333; }
+    .p-meeting { font-size: 1.4rem; font-weight: 700; margin-bottom: 15px; color: #000; }
+    .p-meta { 
+      display: flex; justify-content: space-between; border-bottom: 2px solid #000; 
+      padding-bottom: 6px; margin-bottom: 15px; font-weight: 700; font-size: 0.95rem;
+    }
+    .p-row { display: flex; margin-bottom: 6px; font-size: 0.95rem; align-items: flex-start; }
+    .p-time { width: 50px; font-weight: 700; flex-shrink: 0; }
+    .p-title { flex-grow: 1; padding-right: 15px; }
+    .p-person { text-align: right; font-weight: 600; flex-shrink: 0; min-width: 120px; }
+    .p-section-title {
+      font-weight: 700; font-size: 1.05rem; margin: 18px 0 12px 0;
+      padding: 4px 10px; color: white;
+    }
+    .bg-treasures { background-color: var(--color-treasures); }
+    .bg-ministry { background-color: var(--color-ministry); }
+    .bg-living { background-color: var(--color-living); }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <div class="edit-area" id="editForm">
+      
+      <div class="action-bar">
+        <button class="btn-action btn-new" onclick="createNew()">📄 ສ້າງໃໝ່</button>
+        <button class="btn-action btn-open" onclick="openFile()">📂 ເປີດໄຟລ໌</button>
+        <button class="btn-action btn-save" onclick="saveFile()">💾 ບັນທຶກໄຟລ໌</button>
+        <button class="btn-action btn-image" onclick="saveAsImage()">🖼️ ບັນທຶກຮູບພາບ</button>
+        <input type="file" id="fileInput" accept=".json" style="display:none;" onchange="handleFileOpen(event)">
+      </div>
+
+      <h2>✏️ ປ້ອນຂໍ້ມູນຕາຕະລາງ</h2>
+      <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 15px;">ເມື່ອພິມຂໍ້ຄວາມ ມັນຈະສະແດງຜົນຢູ່ເບື້ອງຂວາ (ຫຼືດ້ານລຸ່ມ) ໂດຍອັດຕະໂນມັດ.</p>
+
+      <div class="form-group">
+        <label>ຊື່ປະຊາຄົມ</label>
+        <input type="text" id="i_congregation" value="ປະຊາຄົມຫຼັກ16">
+      </div>
+      <div class="form-group">
+        <label>ຊື່ການປະຊຸມ</label>
+        <input type="text" id="i_meeting" value="ຊີວິດຄລິດສະຕຽນແລະວຽກຮັບໃຊ້">
+      </div>
+      <div class="form-group">
+        <label>ວັນທີ ແລະ ສ່ວນອ່ານຄໍາພີໄບເບິນ</label>
+        <input type="text" id="i_date" value="ວັນພະຫັດທີ  | ">
+      </div>
+      <div class="form-group">
+        <label>ປະທານ</label>
+        <input type="text" id="i_chairman" value="">
+      </div>
+
+      <div class="section-title-edit" style="color: #4b5563;">ພາກເລີ່ມຕົ້ນ</div>
+      <div class="form-group">
+        <div class="item-row">
+          <input type="text" id="i_open_time" class="time" value="6:30" placeholder="ເວລາ">
+          <input type="text" id="i_open_title" class="title" value="ເພງ " placeholder="ເນື້ອໃນ">
+          <input type="text" id="i_open_person" class="person" value="" placeholder="ຜູ້ອະທິດຖານ">
+        </div>
+        <div class="item-row">
+          <input type="text" id="i_open2_time" class="time" value="6:35" placeholder="ເວລາ">
+          <input type="text" id="i_open2_title" class="title" value="ຄຳນຳ​ເປີດ​ການ​ປະຊຸມ (1 ນາທີ)" placeholder="ເນື້ອໃນ">
+          <input type="text" id="i_open2_person" class="person" value="" placeholder="ຜູ້ຮັບຜິດຊອບ">
+        </div>
+      </div>
+
+      <div class="section-title-edit" style="color: var(--color-treasures);">ສິ່ງທີ່ມີຄ່າຈາກຄໍາສອນຂອງພະເຈົ້າ</div>
+      <div id="list_treasures"></div>
+      
+
+      <div class="section-title-edit" style="color: var(--color-ministry);">ຝຶກ​ເປັນ​ຜູ້​ສອນ​ຄຳ​ຂອງ​ພະເຈົ້າ​ໃຫ້​ເກັ່ງ​ຂຶ້ນ</div>
+      <div id="list_ministry"></div>
+      <button class="btn-add" style="background-color: var(--color-ministry);" onclick="addRow('ministry')">＋ ເພີ່ມລາຍການ</button>
+
+      <div class="section-title-edit" style="color: var(--color-living);">ຊີວິດຄລິດສະຕຽນ</div>
+      <div id="list_living"></div>
+      <button class="btn-add" style="background-color: var(--color-living);" onclick="addRow('living')">＋ ເພີ່ມລາຍການ</button>
+
+      <div class="section-title-edit" style="color: #4b5563;">ພາກມ້ວນທ້າຍ</div>
+      <div class="form-group">
+        <div class="item-row" id="row_close1">
+          <input type="text" id="i_close1_time" class="time" value="8:07" placeholder="ເວລາ">
+          <input type="text" id="i_close1_title" class="title" value="ສະຫຼຸບ​ແລະ​ປິດ​ການ​ປະຊຸມ (3 ນາທີ)" placeholder="ເນື້ອໃນ">
+          <input type="text" id="i_close1_person" class="person" value="" placeholder="ຜູ້ຮັບຜິດຊອບ">
+          
+        </div>
+        <div class="item-row">
+          <input type="text" id="i_close_time" class="time" value="8:10" placeholder="ເວລາ">
+          <input type="text" id="i_close_title" class="title" value="ເພງ " placeholder="ເນື້ອໃນ">
+          <input type="text" id="i_close_person" class="person" value="" placeholder="ຜູ້ອະທິດຖານ">
+        </div>
+      </div>
+
+    </div>
+
+    <div class="preview-area">
+      <div class="paper" id="paperPreview"></div>
+    </div>
+
+  </div>
+
+  <script>
+    // ຂໍ້ມູນຕັ້ງຕົ້ນ
+    let programs = {
+      treasures: [
+        { id: 1, time: "6:36", title: "", person: "" },
+        { id: 2, time: "6:46", title: "2. ຊອກ​ຫາ​ຄວາມ​ຮູ້​ທີ່​ມີ​ຄ່າ​ຂອງ​ພະເຈົ້າ", person: "" },
+        { id: 3, time: "6:57", title: "3. ການ​ອ່ານ​ຄຳພີ​ໄບເບິນ", person: "" }
+      ],
+      ministry: [
+        { id: 4, time: "7:02", title: "", person: "" },
+        { id: 5, time: "7:07", title: "", person: "" },
+        { id: 6, time: "7:11", title: "", person: "" }
+      ],
+      living: [
+        { id: 7, time: "7:17", title: "ເພງ ", person: "" },
+        { id: 8, time: "7:21", title: "", person: "" },
+        { id: 9, time: "7:37", title: "", person: "" }
+      ]
+    };
+    let nextId = 10;
+
+    document.getElementById('editForm').addEventListener('input', renderPreview);
+
+    function addRow(section) {
+      programs[section].push({ id: nextId++, time: "", title: "", person: "" });
+      renderEditLists();
+      renderPreview();
+    }
+    
+    function deleteRow(section, id) {
+      programs[section] = programs[section].filter(item => item.id !== id);
+      renderEditLists();
+      renderPreview();
+    }
+    
+    function updateData(section, id, field, value) {
+      const item = programs[section].find(i => i.id === id);
+      if(item) item[field] = value;
+      renderPreview(); 
+    }
+
+    function removeClose1() {
+      document.getElementById('row_close1').style.display = 'none';
+      document.getElementById('i_close1_time').value = '';
+      document.getElementById('i_close1_title').value = '';
+      document.getElementById('i_close1_person').value = '';
+      renderPreview();
+    }
+
+    // ປຸ່ມສ້າງໃໝ່
+    function createNew() {
+      if(confirm("ລຶບຂໍ້ມູນປະຈຸບັນແລະສ້າງໃໝ່ບໍ?")) {
+        document.getElementById('i_congregation').value = "ປະຊາຄົມຫຼັກ16";
+        document.getElementById('i_meeting').value = "ຊີວິດຄລິດສະຕຽນແລະວຽກຮັບໃຊ້";
+        document.getElementById('i_date').value = "ວັນພະຫັດທີ  | ";
+        document.getElementById('i_chairman').value = "";
+        
+        document.getElementById('i_open_time').value = "6:30";
+        document.getElementById('i_open_title').value = "ເພງ ";
+        document.getElementById('i_open_person').value = "";
+        
+        document.getElementById('i_open2_time').value = "6:35";
+        document.getElementById('i_open2_title').value = "ຄຳນຳ​ເປີດ​ການ​ປະຊຸມ (1 ນາທີ)";
+        document.getElementById('i_open2_person').value = "";
+        
+        document.getElementById('row_close1').style.display = '';
+        document.getElementById('i_close1_time').value = "8:07";
+        document.getElementById('i_close1_title').value = "ສະຫຼຸບ​ແລະ​ປິດ​ການ​ປະຊຸມ (3 ນາທີ)";
+        document.getElementById('i_close1_person').value = "";
+
+        document.getElementById('i_close_time').value = "8:10";
+        document.getElementById('i_close_title').value = "";
+        document.getElementById('i_close_person').value = "";
+
+        programs = {
+          treasures: [
+            { id: 1, time: "6:36", title: "", person: "" },
+            { id: 2, time: "6:46", title: "2. ຊອກ​ຫາ​ຄວາມ​ຮູ້​ທີ່​ມີ​ຄ່າ​ຂອງ​ພະເຈົ້າ", person: "" },
+            { id: 3, time: "6:57", title: "3. ການ​ອ່ານ​ຄຳພີ​ໄບເບິນ", person: "" }
+          ],
+          ministry: [
+            { id: 4, time: "7:02", title: "", person: "" },
+            { id: 5, time: "7:07", title: "", person: "" },
+            { id: 6, time: "7:11", title: "", person: "" }
+          ],
+          living: [
+            { id: 7, time: "7:17", title: "ເພງ ", person: "" },
+            { id: 8, time: "7:21", title: "", person: "" },
+            { id: 9, time: "7:37", title: "", person: "" }
+          ]
+        };
+        nextId = 10;
+
+        renderEditLists();
+        renderPreview();
+      }
+    }
+
+    function saveFile() {
+      const saveData = {
+        congregation: document.getElementById('i_congregation').value,
+        meeting: document.getElementById('i_meeting').value,
+        date: document.getElementById('i_date').value,
+        chairman: document.getElementById('i_chairman').value,
+        open: {
+          time: document.getElementById('i_open_time').value,
+          title: document.getElementById('i_open_title').value,
+          person: document.getElementById('i_open_person').value,
+          time2: document.getElementById('i_open2_time').value,
+          title2: document.getElementById('i_open2_title').value,
+          person2: document.getElementById('i_open2_person').value
+        },
+        close: {
+          show1: document.getElementById('row_close1').style.display !== 'none',
+          time1: document.getElementById('i_close1_time').value,
+          title1: document.getElementById('i_close1_title').value,
+          person1: document.getElementById('i_close1_person').value,
+          time: document.getElementById('i_close_time').value,
+          title: document.getElementById('i_close_title').value,
+          person: document.getElementById('i_close_person').value
+        },
+        programs: programs,
+        nextId: nextId
+      };
+
+      const blob = new Blob([JSON.stringify(saveData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      
+      let fileNameDate = saveData.date.split('|')[0].replace(/\//g, '-').trim();
+      if(!fileNameDate) fileNameDate = "schedule";
+      a.download = `ຕາຕະລາງ_${fileNameDate}.json`;
+      
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function openFile() {
+      document.getElementById('fileInput').click();
+    }
+
+    function handleFileOpen(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const loadedData = JSON.parse(e.target.result);
+          
+          document.getElementById('i_congregation').value = loadedData.congregation || "";
+          document.getElementById('i_meeting').value = loadedData.meeting || "";
+          document.getElementById('i_date').value = loadedData.date || "";
+          document.getElementById('i_chairman').value = loadedData.chairman || "";
+          
+          if(loadedData.open) {
+            document.getElementById('i_open_time').value = loadedData.open.time || "";
+            document.getElementById('i_open_title').value = loadedData.open.title || "";
+            document.getElementById('i_open_person').value = loadedData.open.person || "";
+            document.getElementById('i_open2_time').value = loadedData.open.time2 || "";
+            document.getElementById('i_open2_title').value = loadedData.open.title2 || "";
+            document.getElementById('i_open2_person').value = loadedData.open.person2 || "";
+          }
+          if(loadedData.close) {
+            if (loadedData.close.show1 === false) {
+              document.getElementById('row_close1').style.display = 'none';
+            } else {
+              document.getElementById('row_close1').style.display = '';
+            }
+            document.getElementById('i_close1_time').value = loadedData.close.time1 || "";
+            document.getElementById('i_close1_title').value = loadedData.close.title1 || "";
+            document.getElementById('i_close1_person').value = loadedData.close.person1 || "";
+
+            document.getElementById('i_close_time').value = loadedData.close.time || "";
+            document.getElementById('i_close_title').value = loadedData.close.title || "";
+            document.getElementById('i_close_person').value = loadedData.close.person || "";
+          }
+          
+          programs = loadedData.programs || { treasures: [], ministry: [], living: [] };
+          nextId = loadedData.nextId || 100;
+
+          renderEditLists();
+          renderPreview();
+          
+          alert("ໂຫຼດຂໍ້ມູນສຳເລັດແລ້ວ!");
+        } catch (error) {
+          alert("ໄຟລ໌ບໍ່ຖືກຕ້ອງ");
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    // --- 新しく追加した画像保存機能 ---
+    function saveAsImage() {
+      const element = document.getElementById('paperPreview');
+      
+      // 画質を良くするために scale: 2 を指定し、背景を白に固定します
+      html2canvas(element, { scale: 2, backgroundColor: "#ffffff" }).then(canvas => {
+        const link = document.createElement('a');
+        
+        // 日付からファイル名を作成
+        let fileNameDate = document.getElementById('i_date').value.split('|')[0].replace(/\//g, '-').trim();
+        if(!fileNameDate) fileNameDate = "schedule";
+        
+        link.download = `ຕາຕະລາງ_${fileNameDate}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      }).catch(err => {
+        alert("画像の保存に失敗しました。");
+        console.error(err);
+      });
+    }
+
+    function renderEditLists() {
+      const sections = ['treasures', 'ministry', 'living'];
+      sections.forEach(sec => {
+        const container = document.getElementById(`list_${sec}`);
+        container.innerHTML = '';
+        programs[sec].forEach(item => {
+          const div = document.createElement('div');
+          div.className = 'item-row';
+          div.innerHTML = `
+            <input type="text" class="time" value="${item.time}" oninput="updateData('${sec}', ${item.id}, 'time', this.value)" placeholder="ເວລາ">
+            <input type="text" class="title" value="${item.title}" oninput="updateData('${sec}', ${item.id}, 'title', this.value)" placeholder="ເນື້ອໃນ">
+            <input type="text" class="person" value="${item.person}" oninput="updateData('${sec}', ${item.id}, 'person', this.value)" placeholder="ຜູ້ຮັບຜິດຊອບ">
+            <button class="btn-delete" onclick="deleteRow('${sec}', ${item.id})" title="ລຶບ">×</button>
+          `;
+          container.appendChild(div);
+        });
+      });
+    }
+
+    function renderPreview() {
+      const cong = document.getElementById('i_congregation').value;
+      const meeting = document.getElementById('i_meeting').value;
+      const date = document.getElementById('i_date').value;
+      const chairman = document.getElementById('i_chairman').value;
+      
+      const op_time = document.getElementById('i_open_time').value;
+      const op_title = document.getElementById('i_open_title').value;
+      const op_person = document.getElementById('i_open_person').value;
+
+      const op2_time = document.getElementById('i_open2_time').value;
+      const op2_title = document.getElementById('i_open2_title').value;
+      const op2_person = document.getElementById('i_open2_person').value;
+      
+      const cl1_time = document.getElementById('i_close1_time').value;
+      const cl1_title = document.getElementById('i_close1_title').value;
+      const cl1_person = document.getElementById('i_close1_person').value;
+      const isCl1Visible = document.getElementById('row_close1').style.display !== 'none';
+
+      const cl_time = document.getElementById('i_close_time').value;
+      const cl_title = document.getElementById('i_close_title').value;
+      const cl_person = document.getElementById('i_close_person').value;
+
+      let html = `
+        <div class="p-congregation">${cong}</div>
+        <div class="p-meeting">${meeting}</div>
+        
+        <div class="p-meta">
+          <div>${date}</div>
+          <div>${chairman ? `ປະທານ ${chairman}` : ''}</div>
+        </div>
+
+        <div class="p-row" style="margin-top: 10px;">
+          <div class="p-time">${op_time}</div>
+          <div class="p-title">${op_title}</div>
+          <div class="p-person">${op_person ? `ຜູ້ອະທິດຖານ ${op_person}` : ''}</div>
+        </div>
+        <div class="p-row">
+          <div class="p-time">${op2_time}</div>
+          <div class="p-title">${op2_title}</div>
+          <div class="p-person">${op2_person}</div>
+        </div>
+      `;
+
+      const generateRows = (arr) => {
+        let rowsHtml = '';
+        arr.forEach(item => {
+          rowsHtml += `
+            <div class="p-row">
+              <div class="p-time">${item.time}</div>
+              <div class="p-title">${item.title}</div>
+              <div class="p-person">${item.person}</div>
+            </div>
+          `;
+        });
+        return rowsHtml;
+      };
+
+      if(programs.treasures.length > 0) {
+        html += `<div class="p-section-title bg-treasures">ສິ່ງທີ່ມີຄ່າຈາກຄໍາສອນຂອງພະເຈົ້າ</div>`;
+        html += generateRows(programs.treasures);
+      }
+      if(programs.ministry.length > 0) {
+        html += `<div class="p-section-title bg-ministry">ຝຶກ​ເປັນ​ຜູ້​ສອນ​ຄຳ​ຂອງ​ພະເຈົ້າ​ໃຫ້​ເກັ່ງ​ຂຶ້ນ</div>`;
+        html += generateRows(programs.ministry);
+      }
+      if(programs.living.length > 0) {
+        html += `<div class="p-section-title bg-living">ຊີວິດຄລິດສະຕຽນ</div>`;
+        html += generateRows(programs.living);
+      }
+
+      if (isCl1Visible) {
+        html += `
+          <div class="p-row" style="margin-top: 15px;">
+            <div class="p-time">${cl1_time}</div>
+            <div class="p-title">${cl1_title}</div>
+            <div class="p-person">${cl1_person}</div>
+          </div>
+        `;
+      }
+
+      html += `
+        <div class="p-row" style="${isCl1Visible ? '' : 'margin-top: 15px;'}">
+          <div class="p-time">${cl_time}</div>
+          <div class="p-title">${cl_title}</div>
+          <div class="p-person">${cl_person ? `ຜູ້ອະທິດຖານ ${cl_person}` : ''}</div>
+        </div>
+      `;
+
+      document.getElementById('paperPreview').innerHTML = html;
+    }
+
+    // ເລີ່ມຕົ້ນທຳງານ
+    renderEditLists();
+    renderPreview();
+  </script>
+
+</body>
+</html>
