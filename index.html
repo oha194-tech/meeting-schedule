@@ -229,13 +229,17 @@
         <label>ຊື່ປະຊາຄົມ</label>
         <input type="text" id="i_congregation" value="ປະຊາຄົມຫຼັກ16">
       </div>
-      <div class="form-group">
+      <div class="form-group" style="display: none;">
         <label>ຊື່ການປະຊຸມ</label>
         <input type="text" id="i_meeting" value="ຊີວິດຄລິດສະຕຽນແລະວຽກຮັບໃຊ້">
       </div>
+            <div class="form-group">
+        <label>ວັນທີ</label>
+        <input type="text" id="i_date" value="ວັນພະຫັດທີ ">
+      </div>
       <div class="form-group">
-        <label>ວັນທີ ແລະ ສ່ວນອ່ານຄໍາພີໄບເບິນ</label>
-        <input type="text" id="i_date" value="ວັນພະຫັດທີ  | ">
+        <label>ສ່ວນອ່ານຄໍາພີໄບເບິນ</label>
+        <input type="text" id="i_bible" value="" placeholder="ຕົວຢ່າງ: ສຸພາສິດ 1-2">
       </div>
       <div class="form-group">
         <label>ປະທານ</label>
@@ -343,9 +347,9 @@
     // ປຸ່ມສ້າງໃໝ່
     function createNew() {
       if(confirm("ລຶບຂໍ້ມູນປະຈຸບັນແລະສ້າງໃໝ່ບໍ?")) {
-        document.getElementById('i_congregation').value = "ປະຊາຄົມຫຼັກ16";
-        document.getElementById('i_meeting').value = "ຊີວິດຄລິດສະຕຽນແລະວຽກຮັບໃຊ້";
-        document.getElementById('i_date').value = "ວັນພະຫັດທີ  | ";
+                document.getElementById('i_meeting').value = "ຊີວິດຄລິດສະຕຽນແລະວຽຮັບໃຊ້";
+        document.getElementById('i_date').value = "ວັນພະຫັດທີ ";
+        document.getElementById('i_bible').value = ""; // ここを追加
         document.getElementById('i_chairman').value = "";
         
         document.getElementById('i_open_time').value = "6:30";
@@ -391,9 +395,10 @@
 
     function saveFile() {
       const saveData = {
-        congregation: document.getElementById('i_congregation').value,
+                congregation: document.getElementById('i_congregation').value,
         meeting: document.getElementById('i_meeting').value,
-        date: document.getElementById('i_date').value,
+        // 2つの入力欄を合体させて保存します
+        date: document.getElementById('i_date').value + " | " + document.getElementById('i_bible').value,
         chairman: document.getElementById('i_chairman').value,
         open: {
           time: document.getElementById('i_open_time').value,
@@ -444,9 +449,20 @@
         try {
           const loadedData = JSON.parse(e.target.result);
           
-          document.getElementById('i_congregation').value = loadedData.congregation || "";
+          document.getElementById('i_congregation').value = loadedData.loadedData.congregation || "";
           document.getElementById('i_meeting').value = loadedData.meeting || "";
-          document.getElementById('i_date').value = loadedData.date || "";
+          
+          // 読み込んだデータを「|」で分解してそれぞれの欄に入れます
+          const fullDate = loadedData.date || "";
+          if (fullDate.includes('|')) {
+            const parts = fullDate.split('|');
+            document.getElementById('i_date').value = parts[0].trim();
+            document.getElementById('i_bible').value = parts[1].trim();
+          } else {
+            document.getElementById('i_date').value = fullDate;
+            document.getElementById('i_bible').value = "";
+          }
+          
           document.getElementById('i_chairman').value = loadedData.chairman || "";
           
           if(loadedData.open) {
@@ -527,10 +543,14 @@
       });
     }
 
-    function renderPreview() {
+        function renderPreview() {
       const cong = document.getElementById('i_congregation').value;
       const meeting = document.getElementById('i_meeting').value;
-      const date = document.getElementById('i_date').value;
+      
+      // 2つの入力を取得して「 |調整 」で結合します
+      const dateOnly = document.getElementById('i_date').value;
+      const bibleReading = document.getElementById('i_bible').value;
+      const date = bibleReading ? `${dateOnly} | ${bibleReading}` : dateOnly;
       const chairman = document.getElementById('i_chairman').value;
       
       const op_time = document.getElementById('i_open_time').value;
