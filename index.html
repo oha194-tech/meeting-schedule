@@ -474,9 +474,9 @@
           renderEditLists();
           renderPreview();
           
-          alert("ໂຫຼດຂໍ້ມູນສຳເລັດແລ້ວ! (読み込み完了)");
+          alert("ໂຫຼດຂໍ້ມູນສຳເລັດແລ້ວ!");
         } catch (error) {
-          alert("ໄຟລ໌ບໍ່ຖືກຕ້ອງ (ファイルが不正です)");
+          alert("ໄຟລ໌ບໍ່ຖືກຕ້ອງ");
         }
       };
       reader.readAsText(file);
@@ -493,7 +493,7 @@
         link.href = canvas.toDataURL('image/png');
         link.click();
       }).catch(err => {
-        alert("ດາວໂຫຼດຮູບພາບບໍ່ສຳເລັດ (画像の保存に失敗しました)");
+        alert("ດາວໂຫຼດຮູບພາບບໍ່ສຳເລັດ");
         console.error(err);
       });
     }
@@ -519,7 +519,7 @@
       const validPrograms = targetPrograms.filter(p => p.person && p.person.trim() !== "");
 
       if (validPrograms.length === 0) {
-        alert("ຍັງບໍ່ມີຊື່ຜູ້ເຮັດສ່ວນສຳລັບສ້າງໃບມອບໝາຍ (割り当て対象がいません)");
+        alert("ຍັງບໍ່ມີຊື່ຜູ້ເຮັດສ່ວນສຳລັບສ້າງໃບມອບໝາຍ");
         return;
       }
 
@@ -617,7 +617,7 @@
       }
       
       container.innerHTML = ''; // ລຶບຂີ້ເຫຍື້ອ
-      alert("ບັນທຶກໃບມອບໝາຍສຳເລັດແລ້ວ! (スリップの保存が完了しました)");
+      alert("ບັນທຶກໃບມອບໝາຍສຳເລັດແລ້ວ!");
     }
 
     function renderEditLists() {
