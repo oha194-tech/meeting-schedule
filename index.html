@@ -42,20 +42,20 @@
 
     .action-bar {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       margin-bottom: 20px;
       flex-wrap: wrap;
     }
     .btn-action {
       flex: 1;
-      min-width: 100px;
-      padding: 12px 10px;
+      min-width: 95px;
+      padding: 10px 8px;
       border: none;
       border-radius: 6px;
       color: white;
       font-weight: bold;
       cursor: pointer;
-      font-size: 0.95rem;
+      font-size: 0.85rem;
       font-family: 'Noto Sans Lao', sans-serif;
       display: flex;
       justify-content: center;
@@ -63,13 +63,16 @@
       gap: 5px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
+    @media (min-width: 768px) {
+      .btn-action { font-size: 0.95rem; padding: 12px 10px; }
+    }
     .btn-action:active { transform: translateY(1px); }
     
     .btn-new { background-color: var(--danger-color); }
     .btn-open { background-color: var(--primary-color); }
     .btn-save { background-color: var(--success-color); }
-    /* 画像保存ボタン用のスタイルを追加 */
     .btn-image { background-color: #8b5cf6; } 
+    .btn-slip { background-color: #ec4899; } /* ໃບມອບໝາຍ (Slip) */
 
     .edit-area {
       flex: 1;
@@ -123,13 +126,17 @@
       box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
     }
     
-    .item-row { display: flex; gap: 5px; margin-bottom: 8px; align-items: center; }
-    .item-row input.time { width: 65px; }
-    .item-row input.title { flex: 1; }
-    .item-row input.person { width: 100px; }
+    .item-row { display: flex; gap: 4px; margin-bottom: 8px; align-items: center; flex-wrap: wrap; }
+    .item-row input.time { width: 55px; }
+    .item-row input.title { flex: 1; min-width: 100px; }
+    .item-row input.person { width: 85px; }
+    .item-row input.assistant { width: 85px; }
+    @media (max-width: 400px) {
+      .item-row input.person, .item-row input.assistant { width: 70px; }
+    }
     .btn-delete {
       background: var(--danger-color); color: white; border: none;
-      border-radius: 4px; padding: 8px; cursor: pointer; font-weight: bold;
+      border-radius: 4px; padding: 8px; cursor: pointer; font-weight: bold; width: 30px;
     }
     .btn-add {
       background: var(--primary-color); color: white; border: none;
@@ -170,40 +177,22 @@
     .bg-ministry { background-color: var(--color-ministry); }
     .bg-living { background-color: var(--color-living); }
 
-    /* --- スマホ表示（縦・横）向けのプレビュー文字サイズ調整 --- */
+    /* --- スマホ表示向けの調整 --- */
     @media (max-width: 896px) {
-      .paper {
-        /* 紙の左右の余白を狭くして、文字を表示できる幅を広げます */
-        padding: 25px 15px; 
-      }
+      .paper { padding: 25px 15px; }
       .p-congregation { font-size: 0.95rem; }
       .p-meeting { font-size: 1.15rem; }
       .p-meta { font-size: 0.85rem; }
-      
-      /* 各行の文字サイズを小さめに調整 */
       .p-row { font-size: 0.8rem; } 
-      
-      /* 左右の項目幅を少し狭くして、真ん中のタイトル部分のスペースを確保します */
       .p-time { width: 40px; } 
       .p-person { min-width: 90px; } 
       .p-title { padding-right: 5px; } 
-      
-      .p-section-title { 
-        font-size: 0.9rem; 
-        padding: 3px 8px; 
-        margin: 12px 0 8px 0; 
-      }
+      .p-section-title { font-size: 0.9rem; padding: 3px 8px; margin: 12px 0 8px 0; }
     }
 
-    /* --- スマホ縦表示のときだけ、編集画面を広く、プレビューを狭くする --- */
     @media (max-width: 767px) {
-      .edit-area {
-        flex: 2; /* 編集画面の比率を大きくして広げます（元のコードは 1） */
-      }
-      .preview-area {
-        flex: 1; /* プレビュー画面の比率を小さくします（元のコードは 2） */
-        padding: 15px 10px; /* プレビュー周りの余白を削って、さらに省スペース化します */
-      }
+      .edit-area { flex: 2; }
+      .preview-area { flex: 1; padding: 15px 10px; }
     }
 
   </style>
@@ -215,10 +204,11 @@
     <div class="edit-area" id="editForm">
       
       <div class="action-bar">
-        <button class="btn-action btn-new" onclick="createNew()">📄 ສ້າງໃໝ່</button>
-        <button class="btn-action btn-open" onclick="openFile()">📂 ເປີດໄຟລ໌</button>
-        <button class="btn-action btn-save" onclick="saveFile()">💾 ບັນທຶກໄຟລ໌</button>
-        <button class="btn-action btn-image" onclick="saveAsImage()">🖼️ ບັນທຶກຮູບພາບ</button>
+        <button class="btn-action btn-new" onclick="createNew()" title="ສ້າງໃໝ່">📄</button>
+        <button class="btn-action btn-open" onclick="openFile()" title="ເປີດໄຟລ໌">📂</button>
+        <button class="btn-action btn-save" onclick="saveFile()" title="ບັນທຶກໄຟລ໌">💾</button>
+        <button class="btn-action btn-image" onclick="saveAsImage()" title="ບັນທຶກຮູບພາບຕາຕະລາງ">🖼️</button>
+        <button class="btn-action btn-slip" onclick="saveSlips()" title="ບັນທຶກໃບມອບໝາຍ (S-89)">🏷️ S-89</button>
         <input type="file" id="fileInput" accept=".json" style="display:none;" onchange="handleFileOpen(event)">
       </div>
 
@@ -233,7 +223,7 @@
         <label>ຊື່ການປະຊຸມ</label>
         <input type="text" id="i_meeting" value="ຊີວິດຄລິດສະຕຽນແລະວຽກຮັບໃຊ້">
       </div>
-            <div class="form-group">
+      <div class="form-group">
         <label>ວັນທີ</label>
         <input type="text" id="i_date" value="ວັນພະຫັດທີ ">
       </div>
@@ -256,7 +246,7 @@
         <div class="item-row">
           <input type="text" id="i_open2_time" class="time" value="6:35" placeholder="ເວລາ">
           <input type="text" id="i_open2_title" class="title" value="ຄຳນຳ​ເປີດ​ການ​ປະຊຸມ (1 ນາທີ)" placeholder="ເນື້ອໃນ">
-          <input type="text" id="i_open2_person" class="person" value="" placeholder="ຜູ້ຮັບຜິດຊອບ">
+          <input type="text" id="i_open2_person" class="person" value="" placeholder="ຜູ້ເຮັດສ່ວນ">
         </div>
       </div>
 
@@ -277,8 +267,7 @@
         <div class="item-row" id="row_close1">
           <input type="text" id="i_close1_time" class="time" value="8:07" placeholder="ເວລາ">
           <input type="text" id="i_close1_title" class="title" value="ສະຫຼຸບ​ແລະ​ປິດ​ການ​ປະຊຸມ (3 ນາທີ)" placeholder="ເນື້ອໃນ">
-          <input type="text" id="i_close1_person" class="person" value="" placeholder="ຜູ້ຮັບຜິດຊອບ">
-          
+          <input type="text" id="i_close1_person" class="person" value="" placeholder="ຜູ້ເຮັດສ່ວນ">
         </div>
         <div class="item-row">
           <input type="text" id="i_close_time" class="time" value="8:10" placeholder="ເວລາ">
@@ -296,7 +285,7 @@
   </div>
 
   <script>
-    // ຂໍ້ມູນຕັ້ງຕົ້ນ
+    // ຂໍ້ມູນຕັ້ງຕົ້ນ (ເພີ່ມ assistant ສຳລັບພາກ ministry)
     let programs = {
       treasures: [
         { id: 1, time: "6:36", title: "", person: "" },
@@ -304,9 +293,9 @@
         { id: 3, time: "6:57", title: "3. ການ​ອ່ານ​ຄຳພີ​ໄບເບິນ", person: "" }
       ],
       ministry: [
-        { id: 4, time: "7:02", title: "", person: "" },
-        { id: 5, time: "7:07", title: "", person: "" },
-        { id: 6, time: "7:11", title: "", person: "" }
+        { id: 4, time: "7:02", title: "", person: "", assistant: "" },
+        { id: 5, time: "7:07", title: "", person: "", assistant: "" },
+        { id: 6, time: "7:11", title: "", person: "", assistant: "" }
       ],
       living: [
         { id: 7, time: "7:17", title: "ເພງ ", person: "" },
@@ -319,7 +308,9 @@
     document.getElementById('editForm').addEventListener('input', renderPreview);
 
     function addRow(section) {
-      programs[section].push({ id: nextId++, time: "", title: "", person: "" });
+      let newItem = { id: nextId++, time: "", title: "", person: "" };
+      if (section === 'ministry') newItem.assistant = "";
+      programs[section].push(newItem);
       renderEditLists();
       renderPreview();
     }
@@ -336,20 +327,11 @@
       renderPreview(); 
     }
 
-    function removeClose1() {
-      document.getElementById('row_close1').style.display = 'none';
-      document.getElementById('i_close1_time').value = '';
-      document.getElementById('i_close1_title').value = '';
-      document.getElementById('i_close1_person').value = '';
-      renderPreview();
-    }
-
-    // ປຸ່ມສ້າງໃໝ່
     function createNew() {
       if(confirm("ລຶບຂໍ້ມູນປະຈຸບັນແລະສ້າງໃໝ່ບໍ?")) {
-                document.getElementById('i_meeting').value = "ຊີວິດຄລິດສະຕຽນແລະວຽຮັບໃຊ້";
+        document.getElementById('i_meeting').value = "ຊີວິດຄລິດສະຕຽນແລະວຽກຮັບໃຊ້";
         document.getElementById('i_date').value = "ວັນພະຫັດທີ ";
-        document.getElementById('i_bible').value = ""; // ここを追加
+        document.getElementById('i_bible').value = ""; 
         document.getElementById('i_chairman').value = "";
         
         document.getElementById('i_open_time').value = "6:30";
@@ -376,9 +358,9 @@
             { id: 3, time: "6:57", title: "3. ການ​ອ່ານ​ຄຳພີ​ໄບເບິນ", person: "" }
           ],
           ministry: [
-            { id: 4, time: "7:02", title: "", person: "" },
-            { id: 5, time: "7:07", title: "", person: "" },
-            { id: 6, time: "7:11", title: "", person: "" }
+            { id: 4, time: "7:02", title: "", person: "", assistant: "" },
+            { id: 5, time: "7:07", title: "", person: "", assistant: "" },
+            { id: 6, time: "7:11", title: "", person: "", assistant: "" }
           ],
           living: [
             { id: 7, time: "7:17", title: "ເພງ ", person: "" },
@@ -395,9 +377,8 @@
 
     function saveFile() {
       const saveData = {
-                congregation: document.getElementById('i_congregation').value,
+        congregation: document.getElementById('i_congregation').value,
         meeting: document.getElementById('i_meeting').value,
-        // 2つの入力欄を合体させて保存します
         date: document.getElementById('i_date').value + " | " + document.getElementById('i_bible').value,
         chairman: document.getElementById('i_chairman').value,
         open: {
@@ -449,15 +430,14 @@
         try {
           const loadedData = JSON.parse(e.target.result);
           
-          document.getElementById('i_congregation').value = loadedData.loadedData.congregation || "";
+          document.getElementById('i_congregation').value = loadedData.congregation || "";
           document.getElementById('i_meeting').value = loadedData.meeting || "";
           
-          // 読み込んだデータを「|」で分解してそれぞれの欄に入れます
           const fullDate = loadedData.date || "";
           if (fullDate.includes('|')) {
             const parts = fullDate.split('|');
             document.getElementById('i_date').value = parts[0].trim();
-            document.getElementById('i_bible').value = parts[1].trim();
+            document.getElementById('i_bible').value = parts[1] ? parts[1].trim() : "";
           } else {
             document.getElementById('i_date').value = fullDate;
             document.getElementById('i_bible').value = "";
@@ -494,34 +474,150 @@
           renderEditLists();
           renderPreview();
           
-          alert("ໂຫຼດຂໍ້ມູນສຳເລັດແລ້ວ!");
+          alert("ໂຫຼດຂໍ້ມູນສຳເລັດແລ້ວ! (読み込み完了)");
         } catch (error) {
-          alert("ໄຟລ໌ບໍ່ຖືກຕ້ອງ");
+          alert("ໄຟລ໌ບໍ່ຖືກຕ້ອງ (ファイルが不正です)");
         }
       };
       reader.readAsText(file);
       event.target.value = '';
     }
 
-    // --- 新しく追加した画像保存機能 ---
     function saveAsImage() {
       const element = document.getElementById('paperPreview');
-      
-      // 画質を良くするために scale: 2 を指定し、背景を白に固定します
       html2canvas(element, { scale: 2, backgroundColor: "#ffffff" }).then(canvas => {
         const link = document.createElement('a');
-        
-        // 日付からファイル名を作成
         let fileNameDate = document.getElementById('i_date').value.split('|')[0].replace(/\//g, '-').trim();
         if(!fileNameDate) fileNameDate = "schedule";
-        
         link.download = `ຕາຕະລາງ_${fileNameDate}.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
       }).catch(err => {
-        alert("画像の保存に失敗しました。");
+        alert("ດາວໂຫຼດຮູບພາບບໍ່ສຳເລັດ (画像の保存に失敗しました)");
         console.error(err);
       });
+    }
+
+    // --- ສ້າງໃບມອບໝາຍ S-89 ---
+    async function saveSlips() {
+      const dateFull = document.getElementById('i_date').value;
+      // ດຶງເອົາສະເພາະຕົວເລກວັນທີ (ເຊັ່ນ 2/7/26)
+      let dateMatch = dateFull.match(/[\d\/]+/);
+      const printDate = dateMatch ? dateMatch[0] : dateFull.replace(/ວັນ[^\s]+\s*/, "").trim();
+
+      let targetPrograms = [];
+      
+      // ເອົາລາຍການອ່ານຄຳພີໄບເບິນ (ລາຍການສຸດທ້າຍຂອງພາກສິ່ງທີ່ມີຄ່າ)
+      if (programs.treasures.length > 0) {
+        targetPrograms.push(programs.treasures[programs.treasures.length - 1]);
+      }
+      
+      // ເອົາທຸກລາຍການໃນພາກຝຶກເປັນຜູ້ສອນ
+      targetPrograms = targetPrograms.concat(programs.ministry);
+      
+      // ກັ່ນຕອງເອົາສະເພາະລາຍການທີ່ມີຊື່ຄົນເຮັດສ່ວນ
+      const validPrograms = targetPrograms.filter(p => p.person && p.person.trim() !== "");
+
+      if (validPrograms.length === 0) {
+        alert("ຍັງບໍ່ມີຊື່ຜູ້ເຮັດສ່ວນສຳລັບສ້າງໃບມອບໝາຍ (割り当て対象がいません)");
+        return;
+      }
+
+      // ສ້າງບ່ອນເກັບຊົ່ວຄາວສຳລັບການແຕ້ມຮູບ
+      let container = document.getElementById('slips-container');
+      if (!container) {
+        container = document.createElement('div');
+        container.id = 'slips-container';
+        container.style.position = 'absolute';
+        container.style.left = '-9999px';
+        container.style.top = '0';
+        document.body.appendChild(container);
+      }
+      container.innerHTML = '';
+
+      for (let i = 0; i < validPrograms.length; i++) {
+        const prog = validPrograms[i];
+        
+        const slipDiv = document.createElement('div');
+        slipDiv.style.width = '450px';
+        slipDiv.style.backgroundColor = '#ffffff';
+        slipDiv.style.padding = '40px 30px';
+        slipDiv.style.boxSizing = 'border-box';
+        slipDiv.style.fontFamily = "'Noto Sans Lao', sans-serif";
+        slipDiv.style.color = '#000000';
+        slipDiv.style.lineHeight = '1.6';
+
+        slipDiv.innerHTML = `
+          <div style="text-align: center; font-size: 1.5rem; font-weight: bold; margin-bottom: 25px; line-height: 1.4;">
+            ການມອບໝາຍໃນການປະຊຸມ<br>
+            ຊີວິດຄລິດສະຕຽນແລະວຽກຮັບໃຊ້
+          </div>
+          
+          <div style="font-size: 1.2rem; margin-bottom: 25px;">
+            <div style="display: flex; align-items: flex-end; margin-bottom: 12px;">
+              <span style="font-weight: bold; margin-right: 10px;">ຊື່:</span>
+              <span style="flex: 1; border-bottom: 1px dashed #000; padding-bottom: 2px; min-height: 24px;">${prog.person || ''}</span>
+            </div>
+            <div style="display: flex; align-items: flex-end; margin-bottom: 12px;">
+              <span style="font-weight: bold; margin-right: 10px;">ຜູ້ຊ່ວຍ:</span>
+              <span style="flex: 1; border-bottom: 1px dashed #000; padding-bottom: 2px; min-height: 24px;">${prog.assistant || ''}</span>
+            </div>
+            <div style="display: flex; align-items: flex-end; margin-bottom: 12px;">
+              <span style="font-weight: bold; margin-right: 10px;">ວັນທີ:</span>
+              <span style="flex: 1; border-bottom: 1px dashed #000; padding-bottom: 2px; min-height: 24px;">${printDate}</span>
+            </div>
+            <div style="display: flex; align-items: flex-end; margin-bottom: 12px;">
+              <span style="font-weight: bold; margin-right: 10px;">ສ່ວນມອບໝາຍທີ:</span>
+              <span style="flex: 1; border-bottom: 1px dashed #000; padding-bottom: 2px; min-height: 24px;">${prog.title || ''}</span>
+            </div>
+          </div>
+          
+          <div style="font-size: 1.1rem; font-weight: bold; margin-bottom: 10px;">
+            ເຮັດສ່ວນມອບໝາຍຢູ່:
+          </div>
+          <div style="font-size: 1.2rem; margin-bottom: 30px; padding-left: 20px;">
+            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+              <div style="width: 22px; height: 22px; border: 1.5px solid #000; margin-right: 15px;"></div>
+              <span>ຫ້ອງປະຊຸມໃຫຍ່</span>
+            </div>
+            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+              <div style="width: 22px; height: 22px; border: 1.5px solid #000; margin-right: 15px;"></div>
+              <span>ຫ້ອງຮຽນເພີ່ມ 1</span>
+            </div>
+            <div style="display: flex; align-items: center; margin-bottom: 8px;">
+              <div style="width: 22px; height: 22px; border: 1.5px solid #000; margin-right: 15px;"></div>
+              <span>ຫ້ອງຮຽນເພີ່ມ 2</span>
+            </div>
+          </div>
+          
+          <div style="font-size: 1rem; text-align: justify; margin-bottom: 25px; line-height: 1.5;">
+            <span style="font-weight: bold;">ເຖິງນັກຮຽນ:</span> ເນື້ອໃນແລະບົດຮຽນສຳລັບສ່ວນມອບໝາຍຂອງທ່ານຢູ່ໃນຊີວິດແລະວຽກຮັບໃຊ້—ຄູ່ມືການປະຊຸມ. ຂໍໃຫ້ທົບທວນຄຳແນະນຳສຳລັບສ່ວນມອບໝາຍໃນຄຳແນະນຳສຳລັບການປະຊຸມຊີວິດຄລິດສະຕຽນແລະວຽກຮັບໃຊ້ (S-38).
+          </div>
+          
+          <div style="font-size: 0.95rem;">
+            S-89-LA 11/23
+          </div>
+        `;
+        
+        container.appendChild(slipDiv);
+
+        try {
+          const canvas = await html2canvas(slipDiv, { scale: 2, backgroundColor: "#ffffff" });
+          const link = document.createElement('a');
+          let safeTitle = (prog.title || `slip_${i}`).replace(/[\/\\]/g, '_').replace(/\s+/g, '').substring(0, 15);
+          link.download = `S-89_${printDate.replace(/\//g, '-')}_${prog.person}.png`;
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+          
+          // ລໍຖ້າໜ້ອຍໜຶ່ງເພື່ອກັນບຣາວເຊີບລັອກການດາວໂຫຼດ (ブラウザのブロック回避)
+          await new Promise(resolve => setTimeout(resolve, 600));
+        } catch (err) {
+          console.error("ດາວໂຫຼດໃບມອບໝາຍບໍ່ສຳເລັດ:", err);
+        }
+      }
+      
+      container.innerHTML = ''; // ລຶບຂີ້ເຫຍື້ອ
+      alert("ບັນທຶກໃບມອບໝາຍສຳເລັດແລ້ວ! (スリップの保存が完了しました)");
     }
 
     function renderEditLists() {
@@ -532,10 +628,18 @@
         programs[sec].forEach(item => {
           const div = document.createElement('div');
           div.className = 'item-row';
+          
+          // ເພີ່ມຊ່ອງໃສ່ຊື່ຜູ້ຊ່ວຍສະເພາະພາກ ministry
+          let assistantInput = '';
+          if (sec === 'ministry') {
+            assistantInput = `<input type="text" class="assistant" value="${item.assistant || ''}" oninput="updateData('${sec}', ${item.id}, 'assistant', this.value)" placeholder="ຜູ້ຊ່ວຍ">`;
+          }
+          
           div.innerHTML = `
             <input type="text" class="time" value="${item.time}" oninput="updateData('${sec}', ${item.id}, 'time', this.value)" placeholder="ເວລາ">
             <input type="text" class="title" value="${item.title}" oninput="updateData('${sec}', ${item.id}, 'title', this.value)" placeholder="ເນື້ອໃນ">
-            <input type="text" class="person" value="${item.person}" oninput="updateData('${sec}', ${item.id}, 'person', this.value)" placeholder="ຜູ້ຮັບຜິດຊອບ">
+            <input type="text" class="person" value="${item.person}" oninput="updateData('${sec}', ${item.id}, 'person', this.value)" placeholder="ຜູ້ເຮັດສ່ວນ">
+            ${assistantInput}
             <button class="btn-delete" onclick="deleteRow('${sec}', ${item.id})" title="ລຶບ">×</button>
           `;
           container.appendChild(div);
@@ -543,11 +647,10 @@
       });
     }
 
-        function renderPreview() {
+    function renderPreview() {
       const cong = document.getElementById('i_congregation').value;
       const meeting = document.getElementById('i_meeting').value;
       
-      // 2つの入力を取得して「 |調整 」で結合します
       const dateOnly = document.getElementById('i_date').value;
       const bibleReading = document.getElementById('i_bible').value;
       const date = bibleReading ? `${dateOnly} | ${bibleReading}` : dateOnly;
@@ -594,11 +697,13 @@
       const generateRows = (arr) => {
         let rowsHtml = '';
         arr.forEach(item => {
+          // ຖ້າມີຊື່ຜູ້ຊ່ວຍ ກໍໃຫ້ສະແດງແບບ: ຊື່ / ຜູ້ຊ່ວຍ
+          const personDisplay = item.assistant ? `${item.person} / ${item.assistant}` : item.person;
           rowsHtml += `
             <div class="p-row">
               <div class="p-time">${item.time}</div>
               <div class="p-title">${item.title}</div>
-              <div class="p-person">${item.person}</div>
+              <div class="p-person">${personDisplay}</div>
             </div>
           `;
         });
