@@ -6,6 +6,11 @@
   <title>ຊີວິດຄລິດສະຕຽນແລະວຽກຮັບໃຊ້ - ສ້າງຕາຕະລາງ</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Lao:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
   <style>
     :root {
       --bg-color: #f3f4f6;
@@ -498,24 +503,19 @@
       });
     }
 
-    // --- ສ້າງໃບມອບໝາຍ S-89 ---
+        // --- ສ້າງໃບມອບໝາຍ S-89 ---
     async function saveSlips() {
       const dateFull = document.getElementById('i_date').value;
-      // ດຶງເອົາສະເພາະຕົວເລກວັນທີ (ເຊັ່ນ 2/7/26)
       let dateMatch = dateFull.match(/[\d\/]+/);
       const printDate = dateMatch ? dateMatch[0] : dateFull.replace(/ວັນ[^\s]+\s*/, "").trim();
 
       let targetPrograms = [];
       
-      // ເອົາລາຍການອ່ານຄຳພີໄບເບິນ (ລາຍການສຸດທ້າຍຂອງພາກສິ່ງທີ່ມີຄ່າ)
       if (programs.treasures.length > 0) {
         targetPrograms.push(programs.treasures[programs.treasures.length - 1]);
       }
       
-      // ເອົາທຸກລາຍການໃນພາກຝຶກເປັນຜູ້ສອນ
       targetPrograms = targetPrograms.concat(programs.ministry);
-      
-      // ກັ່ນຕອງເອົາສະເພາະລາຍການທີ່ມີຊື່ຄົນເຮັດສ່ວນ
       const validPrograms = targetPrograms.filter(p => p.person && p.person.trim() !== "");
 
       if (validPrograms.length === 0) {
@@ -523,7 +523,6 @@
         return;
       }
 
-      // ສ້າງບ່ອນເກັບຊົ່ວຄາວສຳລັບການແຕ້ມຮູບ
       let container = document.getElementById('slips-container');
       if (!container) {
         container = document.createElement('div');
@@ -534,6 +533,9 @@
         document.body.appendChild(container);
       }
       container.innerHTML = '';
+
+      // ★ 新規追加: ZIPファイル作成の準備
+      const zip = new JSZip();
 
       for (let i = 0; i < validPrograms.length; i++) {
         const prog = validPrograms[i];
@@ -602,24 +604,37 @@
         container.appendChild(slipDiv);
 
         try {
+          // 画像を生成
           const canvas = await html2canvas(slipDiv, { scale: 2, backgroundColor: "#ffffff" });
-          const link = document.createElement('a');
-          let safeTitle = (prog.title || `slip_${i}`).replace(/[\/\\]/g, '_').replace(/\s+/g, '').substring(0, 15);
-          link.download = `S-89_${printDate.replace(/\//g, '-')}_${prog.person}.png`;
-          link.href = canvas.toDataURL('image/png');
-          link.click();
           
-          // ລໍຖ້າໜ້ອຍໜຶ່ງເພື່ອກັນບຣາວເຊີບລັອກການດາວໂຫຼດ (ブラウザのブロック回避)
-          await new Promise(resolve => setTimeout(resolve, 600));
+          // ★ 新規追加: 画像データをZIPに追加する処理
+          // Base64データから画像部分だけを抽出
+          const imgData = canvas.toDataURL('image/png').split('base64,')[1];
+          const fileName = `S-89_${printDate.replace(/\//g, '-')}_${prog.person}.png`;
+          zip.file(fileName, imgData, {base64: true});
+
         } catch (err) {
           console.error("ດາວໂຫຼດໃບມອບໝາຍບໍ່ສຳເລັດ:", err);
         }
       }
       
       container.innerHTML = ''; // ລຶບຂີ້ເຫຍື້ອ
-      alert("ບັນທຶກໃບມອບໝາຍສຳເລັດແລ້ວ!");
-    }
 
+      // ★ 新規追加: ループがすべて終わった後にZIPファイルをダウンロード
+      try {
+        const content = await zip.generateAsync({type:"blob"});
+        const link = document.createElement('a');
+        link.download = `S-89_Slips_${printDate.replace(/\//g, '-')}.zip`;
+        link.href = URL.createObjectURL(content);
+        link.click();
+        URL.revokeObjectURL(link.href);
+        
+        alert("ບັນທຶກໃບມອບໝາຍສຳເລັດແລ້ວ! (ດາວໂຫຼດເປັນ ZIP)");
+      } catch (err) {
+        console.error("ZIP作成に失敗しました:", err);
+        alert("ເກີດຂໍ້ຜິດພາດໃນການສ້າງໄຟລ໌ ZIP");
+      }
+    }
     function renderEditLists() {
       const sections = ['treasures', 'ministry', 'living'];
       sections.forEach(sec => {
